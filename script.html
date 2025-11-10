@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Data Pengunjung Hotel</title>
+  <!-- Hubungkan file CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="card">
+    <div class="header-img"></div>
+    <div class="content">
+      <h2>📋 Data Pengunjung Hotel</h2>
+      <form id="dataForm">
+        <label>Waktu</label>
+        <input type="text" id="timestamp" readonly>
+        <label>Nama Pengunjung</label>
+        <input type="text" id="nama" placeholder="Masukkan nama" required>
+        <label>Nama Hotel</label>
+        <input type="text" id="hotel" placeholder="Masukkan nama hotel" required>
+        <button type="submit">Kirim Data</button>
+      </form>
+      <div id="status"></div>
+    </div>
+  </div>
+
+  <script>
+  // === URL SCRIPT GOOGLE ===
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwq6bnDyQ3_pw3CbCocK192kRVXRO6_EBs4TNCXqNsPnqNCvgSmfnP9bF_0bI4s6abf9w/exec';
+
+  const form = document.getElementById('dataForm');
+  const timestamp = document.getElementById('timestamp');
+  const statusEl = document.getElementById('status');
+
+  // Update waktu realtime
+  function updateTime() {
+    const now = new Date();
+    timestamp.value = now.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+
+  // Animasi status
+  function showStatus(message, type) {
+    statusEl.innerHTML = message;
+    statusEl.className = type + ' show';
+  }
+  function showLoading() {
+    showStatus('<span class="loader"></span> Mengirim data...', 'loading');
+  }
+
+  // Kirim data ke Google Apps Script
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    showLoading();
+
+    const data = {
+      timestamp: timestamp.value,
+      nama: document.getElementById('nama').value,
+      hotel: document.getElementById('hotel').value
+    };
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(() => {
+      showStatus('✅ Data berhasil dikirim!', 'success');
+      form.reset();
+      updateTime();
+    })
+    .catch(() => {
+      showStatus('❌ Gagal mengirim data.', 'error');
+    });
+  });
+  </script>
+</body>
+</html>
